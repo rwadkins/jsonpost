@@ -84,9 +84,14 @@
             value: this.options.uuid
         });
 
+        var originInput = new Input({
+            name: "origin",
+            value: global.location.host
+        });
+
         var payloadInput = new Input({
             name: "payload",
-            value: JSON.stringify(payload)
+            value: JSON.stringify(payload)`
         });
 
         uuidInput.create().append(this);
