@@ -16,13 +16,21 @@
 
     Jsonpost.prototype.execute = function() {
         // bind to message event 
-        var binding = new EventListener(this.options);
+        var binding = new EventListener(this.options, this.cleanup.bind(this));
         binding.addEvent();
         // create frame
-        var frame = new Frame(this.options).create().append();
+        this.frame = new Frame(this.options).create().append();
 
-        var form = new Form(this.options).create(this.url).fill(this.payload).append().submit();
+        this.form = new Form(this.options).create(this.url).fill(this.payload).append().submit();
+        console.log(this.frame, this.form);
 
+    };
+
+    Jsonpost.prototype.cleanup = function() {
+        this.frame.remove();
+        this.form.remove();
+        delete this.frame;
+        delete this.form;
     };
 
     /*
@@ -55,6 +63,10 @@
         return this;
     };
 
+    Frame.prototype.remove = function() {
+        global.document.body.removeChild(this.domNode);
+        delete this.domNode;
+    };
     /*
         ######################################
         # Form
@@ -114,6 +126,11 @@
         return this;
     };
 
+    Form.prototype.remove = function() {
+        global.document.body.removeChild(this.domNode);
+        delete this.domNode;
+    };
+
     /*
         ######################################
         # Input
@@ -149,8 +166,9 @@
     eventHub = {};
     eventBinding = false;
 
-    function EventListener(options) {
+    function EventListener(options, cleanupCB) {
         this.options = options;
+        this.cleanupCB = cleanupCB;
     }
 
     EventListener.prototype.addEvent = function() {
@@ -182,6 +200,7 @@
                 this.options.callback(null, evt.data.payload);
             }
             this.removeEvent();
+            this.cleanupCB();
         }
     };
 
