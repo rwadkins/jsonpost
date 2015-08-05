@@ -86,15 +86,16 @@
 
         var originInput = new Input({
             name: "origin",
-            value: global.location.host
+            value: global.location.origin
         });
 
         var payloadInput = new Input({
             name: "payload",
-            value: JSON.stringify(payload)`
+            value: JSON.stringify(payload)
         });
 
         uuidInput.create().append(this);
+        originInput.create().append(this);
         payloadInput.create().append(this);
 
         this.formNodes.push(uuidInput, payloadInput);
