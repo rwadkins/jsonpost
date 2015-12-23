@@ -172,46 +172,64 @@
         # Callback Message Handling
 
     */
-    eventHub = {};
-    eventBinding = false;
-
     function EventListener(options, cleanupCB) {
         this.options = options;
         this.cleanupCB = cleanupCB;
     }
 
+    EventListener.prototype.eventHub = {};
+    EventListener.prototype.eventBinding = false;
+
     EventListener.prototype.addEvent = function() {
-        if (! eventBinding) {
+        if (! EventListener.prototype.eventBinding) {
             global.addEventListener("message", this.callback.bind(this), false);
-            eventBinding = true;
+            EventListener.prototype.eventBinding = true;
         }
 
-        eventHub[this.options.uuid] = true;
+        EventListener.prototype.eventHub[this.options.uuid] = true;
 
         this.eventTimeOutHandle = global.setTimeout(this.timeoutCallback.bind(this), this.options.timeout || 5000);
     };
 
     EventListener.prototype.removeEvent = function() {
         global.clearTimeout(this.eventTimeOutHandle);
-        delete eventHub[this.options.uuid];
+        delete EventListener.prototype.eventHub[this.options.uuid];
 
-        if(Object.keys(eventHub)) {
-            eventBinding = false;
+        if(Object.keys(EventListener.prototype.eventHub)) {
+            EventListener.prototype.eventBinding = false;
             global.removeEventListener("message", this.callback.bind(this), false);
         }
     };
 
     EventListener.prototype.callback = function(evt) {
+
+        var data;
+        try {
+            data = JSON.parse(evt.data);
+        } catch(err) {
+            this.options.callback({
+                type: "noparse",
+                message: "JSON parse failed for data:\n" + evt.data + "\nwith the following error:\n" + err
+            }, null);
+            this.cleanup();
+        }
+
         // TODO: add a domain check to this from the url.
 
-        if (eventHub[this.options.uuid] && evt.data.uuid === this.options.uuid) {
+        if (EventListener.prototype.eventHub[this.options.uuid] && data.uuid === this.options.uuid) {
             if(evt.origin) {
-                this.options.callback(null, evt.data.payload);
+                this.options.callback(null, data.payload);
             }
-            this.removeEvent();
-            this.cleanupCB();
+
+            this.cleanup();
         }
     };
+
+    EventListener.prototype.cleanup = function() {
+        this.removeEvent();
+        this.cleanupCB();
+    };
+
 
     EventListener.prototype.timeoutCallback = function() {
         this.options.callback({
