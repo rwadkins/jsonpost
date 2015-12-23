@@ -5,6 +5,10 @@
         var jsp = new Jsonpost(url, payload, options);
         jsp.execute();
 
+        return {
+            cancel : jsp.cancel.bind(jsp)
+        };
+
     }
 
     function Jsonpost (url, payload, options) {
@@ -16,8 +20,8 @@
 
     Jsonpost.prototype.execute = function() {
         // bind to message event 
-        var binding = new EventListener(this.options, this.cleanup.bind(this));
-        binding.addEvent();
+        this.binding = new EventListener(this.options, this.cleanup.bind(this));
+        this.binding.addEvent();
         // create frame
         this.frame = new Frame(this.options).create().append();
 
@@ -26,9 +30,14 @@
 
     };
 
+    Jsonpost.prototype.cancel = function() {
+        this.binding && this.binding.removeEvent();
+        this.cleanup();
+    };
+
     Jsonpost.prototype.cleanup = function() {
-        this.frame.remove();
-        this.form.remove();
+        this.frame && this.frame.remove();
+        this.form && this.form.remove();
         delete this.frame;
         delete this.form;
     };
