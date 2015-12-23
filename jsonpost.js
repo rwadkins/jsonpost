@@ -107,7 +107,7 @@
 
         var originInput = new Input({
             name: "origin",
-            value: global.location.origin
+            value: global.location.origin || getOrigin()
         });
 
         var payloadInput = new Input({
@@ -257,6 +257,10 @@
         uid = uid.replace(/^(.{14}).(.{4})./, "$14$2" + (parseInt(uid.substr(19,1),16)&0x3|0x8).toString(16));
         
         return uid;
+    }
+
+    function getOrigin() {
+        return window.location.protocol + "//" + window.location.host;
     }
 
     global.jsonpost = jsonpost;
