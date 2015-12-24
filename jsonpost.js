@@ -188,7 +188,10 @@
 
         EventListener.prototype.eventHub[this.options.uuid] = true;
 
-        this.eventTimeOutHandle = global.setTimeout(this.timeoutCallback.bind(this), this.options.timeout || 5000);
+        this.eventTimeOutHandle = global.setTimeout(
+            this.timeoutCallback.bind(this), 
+            this.options.timeout || 5000
+        );
     };
 
     EventListener.prototype.removeEvent = function() {
